@@ -13,6 +13,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <math.h>
+#include<iomanip>
 
 using namespace std;
 
@@ -91,7 +92,7 @@ int PGCD(int a, int b) //Calcul du PGCD entre deux nombres
     return a;
 }
 
-int factorielle(int a) //Calcule la factorielle d'un nombre
+float factorielle(float a) //Calcule la factorielle d'un nombre
 {
     int i;
     int fact = 1;
@@ -144,11 +145,11 @@ int main() {
                 cout<<"Le PGCD de : "<<nombre1<<" et de "<<nombre2<<" est : "<<PGCD(nombre1,nombre2)<<endl;
                 break;
             case 'F':
+                float fact;
                 cout<<"Entrez un nombre : \n>>>"<<endl;
-                cin>>nombre1;
-                cout<<"La factorielle de "<<nombre1<<" est : "<<factorielle(nombre1)<<endl;
+                cin>>fact;
+                cout<<"La factorielle de "<<fact<<" est : "<<fixed << setprecision(2) <<factorielle(fact)<<endl;
         }
-        
     } while (choix != 'Q');
     cout<<"Fin du programme"<<endl;
     
