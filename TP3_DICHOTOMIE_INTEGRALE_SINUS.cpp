@@ -4,23 +4,23 @@
 
 using namespace std;
 
-float sinusCardinal(float x){
+void sinusCardinal(float x, float &f){
     if(x==0.0){
-        return 3.0;
+        f = 3.0;
     } else {
-        return 3*(sin(x)/x);
+        f= 3*(sin(x)/x);
     }
 }
 
 void dichotomie(float a, float b, float precision, float &zero, int &nbiterations){
     float m ; //milieu de l'intervalle
-    float fa = sinusCardinal(a);
-    float fb = sinusCardinal(b);
-    float fm;
+    float fa, fb, fm;
+    sinusCardinal(a, fa);
+    sinusCardinal(b, fb);
     
     while(abs(b-a) > precision){
         m = abs(a+b)/2;
-        fm = sinusCardinal(m);
+        sinusCardinal(m, fm);
         if(fm==0){
             break;
         }
@@ -37,22 +37,26 @@ void dichotomie(float a, float b, float precision, float &zero, int &nbiteration
     zero = m;
 }
 
-float sinusPlusUn(float x){
-    return sin(x)+1;
+void sinusPlusUn(float x, float &f){
+    f = sin(x)+1;
 }
 
-float primitiveSinusPlusUn(float x){
-    return -cos(x)+x;
+void primitiveSinusPlusUn(float x, float &f){
+    f=-cos(x)+x;
 }
 
-float trapeze(float a, float b, int nbtrapezes){
+void trapeze(float a, float b, int nbtrapezes, float &res){
     float largeur = (b - a) /nbtrapezes;
+    float fa, fb;
     int n;
-    float aire = sinusPlusUn(a)/2+sinusPlusUn(b)/2;
+    sinusPlusUn(a, fa);
+    sinusPlusUn(b, fb);
+    float aire = fa/2 + fb/2;
     for(n=1; n<nbtrapezes; n++){
-        aire += sinusPlusUn(a + n * largeur);
+        sinusPlusUn(a + n * largeur, fa);
+        aire += fa;
     }
-    return largeur * aire;
+    res = largeur * aire;
     
 }
 
@@ -63,36 +67,37 @@ float puissance(float a,int b)
 
 float factorielle(float a) //Calcule la factorielle d'un nombre
 {
-    int i;
-    int fact = 1;
+    float i;
+    float fact = 1;
     for(i=1; i<=a; i++){
         fact = fact * i;
     }
     return fact;
 }
 
-float sinusTaylor(float x, float precision){
-    float sinus = x;
+void sinusTaylor(float x, float precision, float &res){
+    float sinus = x ;
     int n =1 ,a = 1, b = 1;
     do {
-        a = pow(-1,n);
+        a = puissance(-1,n);
         b = 2*n+1;
         if(a<0){
-            sinus -= (pow(x,b)/factorielle(b));
+            sinus -= (puissance(x,b)/factorielle(b));
         } else {
-            sinus += (pow(x,b)/factorielle(b));
+            sinus += (puissance(x,b)/factorielle(b));
         }
         
         n++;
     } while(fabs(sinus-sin(x)) >= precision);
-    return sinus;
+    res = sinus;
 }
 
 int main() {
     float epsilon = 0.1;
-    float a,b, zero,x;
+    float a,b,zero,x,f = 0;
     int nb, nbtrapezes;
-   /* 
+    float res, primA, primB;
+    
    //CALCUL DICHOTOMIQUE
     cout<<"Calcul de la valeur de f(x)=0 par dichotomie :"<<endl;
     cout<<"Entrez la valeur de a : \n>>>"<<endl;
@@ -110,17 +115,21 @@ int main() {
     cin>>b;
     cout<<"Entrez le nombre de trapèzes : \n>>>"<<endl;
     cin>>nbtrapezes;
-    cout<<"L'intégrale est de "<<trapeze(a,b,nbtrapezes)<<" pour un nombre de trapèzes égal à "<<nbtrapezes<<endl;
-    cout<<"L'intégrale (théorique) est de "<<primitiveSinusPlusUn(b)-primitiveSinusPlusUn(a)<<endl;
-    cout<<"L'erreur relative entre les deux méthodes est de : "<<abs(trapeze(a,b,nbtrapezes)-(primitiveSinusPlusUn(b)-primitiveSinusPlusUn(a)))<<endl;
-    */
+    trapeze(a,b,nbtrapezes, res);
+    primitiveSinusPlusUn(a, primA);
+    primitiveSinusPlusUn(b,primB);
+    cout<<"L'intégrale est de "<<res<<" pour un nombre de trapèzes égal à "<<nbtrapezes<<endl;
+    cout<<"L'intégrale (théorique) est de "<<primB-primA<<endl;
+    cout<<"L'erreur relative entre les deux méthodes est de : "<<abs(res-(primB - primA))<<endl;
+    
     //CALCUL SIN(X) AVEC SERIE DE TAYLOR
     cout<<"Calcul de sinus de x en utilisant la série de Taylor"<<endl;
     cout<<"Entrez la valeur de x : \n>>>"<<endl;
     cin>>x;
-    cout<<"Sinus de "<<x<<" est égal à "<<sinusTaylor(x,epsilon)<<" en utilisant la série de Taylor"<<endl;
+    sinusTaylor(x,epsilon, res);
+    cout<<"Sinus de "<<x<<" est égal à "<<res<<" en utilisant la série de Taylor"<<endl;
     cout<<"Sinus de "<<x<<" est égal à "<<sin(x)<<" en utilisant la fonction de C++"<<endl;
-    cout<<"L'erreur moyenne est de"<<abs(sinusTaylor(x,epsilon) - sin(x))<<endl;
+    cout<<"L'erreur moyenne est de "<<abs(res - sin(x))<<endl;
     return 0;
 }
 
